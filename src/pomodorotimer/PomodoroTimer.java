@@ -1,19 +1,26 @@
 /*  
- *  Pomodorotimer v1.1
+ *  Pomodorotimer v1.2
  *  This program is a timer that utilizes the pomodoro method 
 */
 
 package pomodorotimer;
 
-import java.awt.Image;
-import javax.swing.ImageIcon;
+// Swing components
 import javax.swing.JFrame;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Toolkit;
+// Widget
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+// Icon
+import java.awt.Image;
+import javax.swing.ImageIcon;
+// Alarm
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.AudioInputStream;
+import java.net.URL;
 
 public class PomodoroTimer extends JFrame {
     
@@ -293,7 +300,7 @@ public class PomodoroTimer extends JFrame {
                 studyTimer.stop();
                 isRunning = false;
                 roundsComplete++;
-                playBeeps(8);
+                playAlarm();
                 rounds.setText("Rounds Completed: " + roundsComplete);
                 if(roundsComplete % 3 != 0) {
                     isShortBreak = true;
@@ -320,7 +327,7 @@ public class PomodoroTimer extends JFrame {
             if(minutesShort == 0) {
                 shortBreakTimer.stop();
                 isRunning = false;
-                playBeeps(8);
+                playAlarm();
                 resetTimer(25, true);
                 return;
             }
@@ -338,7 +345,7 @@ public class PomodoroTimer extends JFrame {
             if(minutesLong == 0) {
                 longBreakTimer.stop();
                 isRunning = false;
-                playBeeps(8);
+                playAlarm();
                 resetTimer(25, true);
                 return;
             }
@@ -353,19 +360,19 @@ public class PomodoroTimer extends JFrame {
     // Updates the timer as each second passes by
     private void updateTimerLabel(int minutes, int seconds) {
         timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
-    } //******************************
+    } //*****************************
     
-    // Used for the alarm
-    private void playBeeps(int count) {
-        new Thread(() -> {
-            for (int i = 0; i < count; i++) {
-                Toolkit.getDefaultToolkit().beep();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    }
-            }
-        }).start();
+    // Alarm method
+    public void playAlarm() {
+        try {
+            URL soundURL = getClass().getResource("/resources/alarm.wav");
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     } //******************************
     
     // Main argument
